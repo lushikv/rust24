@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">RUST24 mark</title>
+  <desc id="desc">Original tactical RUST24 helmet mark with orange accents.</desc>
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#fb923c" stop-opacity="0.48"/>
+      <stop offset="55%" stop-color="#431407" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#050507" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="metal" x1="20%" x2="82%" y1="8%" y2="96%">
+      <stop offset="0%" stop-color="#f3f4f6"/>
+      <stop offset="28%" stop-color="#a1a1aa"/>
+      <stop offset="58%" stop-color="#27272a"/>
+      <stop offset="100%" stop-color="#050505"/>
+    </linearGradient>
+    <linearGradient id="rust" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#ff7a18"/>
+      <stop offset="48%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#7c2d12"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#000000" flood-opacity="0.65"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#f97316" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <rect width="128" height="128" rx="26" fill="#07080b"/>
+  <rect x="5" y="5" width="118" height="118" rx="22" fill="url(#glow)" opacity="0.9"/>
+  <path d="M64 9 116 101H12L64 9Z" fill="#08090d" stroke="#a3a3a3" stroke-opacity="0.48" stroke-width="5"/>
+  <path d="M64 15 108 96H20L64 15Z" fill="none" stroke="#f97316" stroke-opacity="0.55" stroke-width="2"/>
+  <g filter="url(#shadow)">
+    <path d="M33 58c0-23 14-37 31-37s31 14 31 37v9c0 23-15 40-31 40S33 90 33 67v-9Z" fill="url(#metal)" stroke="#f4f4f5" stroke-opacity="0.42" stroke-width="2"/>
+    <path d="M41 58c2-17 11-26 23-26s21 9 23 26H41Z" fill="#18181b"/>
+    <path d="M40 63h48v13H40z" fill="#050507" stroke="#9ca3af" stroke-opacity="0.35" stroke-width="2"/>
+    <path d="M48 64h9v13h-9zm23 0h9v13h-9z" fill="#111827"/>
+    <path d="M54 82h20l-4 18H58l-4-18Z" fill="#0b0c10" stroke="#f97316" stroke-opacity="0.58" stroke-width="2"/>
+    <path d="M59 84v14m5-14v14m5-14v14" stroke="#52525b" stroke-width="2"/>
+    <path d="M30 70c-6 2-10 8-10 16 8-5 14-7 20-7m58-9c6 2 10 8 10 16-8-5-14-7-20-7" fill="none" stroke="url(#rust)" stroke-width="6" stroke-linecap="round"/>
+  </g>
+  <path d="M20 102h88" stroke="#f97316" stroke-opacity="0.5" stroke-width="2"/>
+  <text x="64" y="118" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="900" letter-spacing="1.5" fill="#f97316">R24</text>
+</svg>

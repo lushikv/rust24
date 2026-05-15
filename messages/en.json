@@ -1,0 +1,104 @@
+{
+  "navigation": {
+    "main": "Main navigation",
+    "servers": "Servers",
+    "store": "Store",
+    "gamemodes": "Game Modes",
+    "faq": "FAQ",
+    "rules": "Rules",
+    "bans": "Bans",
+    "moneyRace": "Money Race",
+    "support": "Support"
+  },
+  "auth": {
+    "steam": "Sign in with Steam",
+    "logout": "Logout"
+  },
+  "footer": {
+    "stage": "Rust server network",
+    "copyright": "Play fair, track wipes, and contact support when a situation needs review."
+  },
+  "home": {
+    "title": "RUST24",
+    "description": "A Rust game server website foundation with localization, base navigation, SEO primitives, and a stable project structure."
+  },
+  "servers": {
+    "title": "Servers",
+    "description": "The RUST24 server list will be added in a later development stage."
+  },
+  "store": {
+    "title": "Store",
+    "description": "The storefront is currently a placeholder without payments or real store logic."
+  },
+  "gamemodes": {
+    "title": "Game Modes",
+    "description": "Server modes and gameplay details will be added later."
+  },
+  "faq": {
+    "title": "FAQ",
+    "description": "Frequently asked questions will be prepared after the base structure is complete."
+  },
+  "rules": {
+    "title": "Rules",
+    "description": "Project rules will be published in a dedicated future stage."
+  },
+  "bans": {
+    "title": "Bans",
+    "description": "The bans page is not connected to server data yet."
+  },
+  "moneyRace": {
+    "title": "Money Race",
+    "description": "The seasonal race page is prepared as a public placeholder route."
+  },
+  "support": {
+    "title": "Support",
+    "description": "Support contacts and workflows will be added in upcoming stages."
+  },
+  "metadata": {
+    "home": {
+      "title": "RUST24 - Rust game servers",
+      "description": "RUST24 is preparing a clear home for Rust players with servers, rules, support, and future game services in a localized structure.",
+      "breadcrumb": "Home"
+    },
+    "servers": {
+      "title": "RUST24 Servers",
+      "description": "The public RUST24 servers section is prepared for future worlds, game modes, and status information.",
+      "breadcrumb": "Servers"
+    },
+    "store": {
+      "title": "RUST24 Store",
+      "description": "The future RUST24 store page is prepared as an SEO-ready foundation without payments or real store logic.",
+      "breadcrumb": "Store"
+    },
+    "gamemodes": {
+      "title": "RUST24 Game Modes",
+      "description": "A future page for RUST24 game modes, wipe details, and server gameplay features.",
+      "breadcrumb": "Game Modes"
+    },
+    "faq": {
+      "title": "RUST24 FAQ",
+      "description": "A future knowledge base for common player questions about RUST24 servers, rules, and support.",
+      "breadcrumb": "FAQ"
+    },
+    "rules": {
+      "title": "RUST24 Rules",
+      "description": "The RUST24 rules section is ready for clear guidance on fair and comfortable play.",
+      "breadcrumb": "Rules"
+    },
+    "bans": {
+      "title": "RUST24 Bans",
+      "description": "The public RUST24 bans page is prepared for future integration with real game data.",
+      "breadcrumb": "Bans"
+    },
+    "moneyRace": {
+      "title": "RUST24 Money Race",
+      "description": "The RUST24 Money Race page is prepared for future seasonal competitions and public leaderboard information.",
+      "breadcrumb": "Money Race"
+    },
+    "support": {
+      "title": "RUST24 Support",
+      "description": "The RUST24 support section is prepared for future contact options, player requests, and help content.",
+      "breadcrumb": "Support"
+    }
+  }
+}

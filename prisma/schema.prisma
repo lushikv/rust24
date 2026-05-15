@@ -1,0 +1,631 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "binary"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Locale {
+  RU
+  EN
+}
+
+enum CurrencyCode {
+  RUB
+  EUR
+}
+
+enum ServerStatus {
+  ONLINE
+  OFFLINE
+  MAINTENANCE
+}
+
+enum TeamLimit {
+  SOLO
+  DUO
+  TRIO
+  NO_LIMIT
+}
+
+enum ProductType {
+  CURRENCY
+  PRIVILEGE
+  KIT
+  SERVICE
+  BATTLE_PASS
+}
+
+enum ProductStatus {
+  ACTIVE
+  DRAFT
+  ARCHIVED
+}
+
+enum BanStatus {
+  ACTIVE
+  EXPIRED
+  APPEALED
+}
+
+enum UserRole {
+  USER
+  MODERATOR
+  ADMIN
+  OWNER
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  SYSTEM
+}
+
+enum CartStatus {
+  ACTIVE
+  CONVERTED
+  ABANDONED
+}
+
+enum OrderStatus {
+  DRAFT
+  PENDING_PAYMENT
+  CANCELLED
+  EXPIRED
+}
+
+enum OrderSource {
+  CART
+  MANUAL
+}
+
+enum PaymentProvider {
+  MOCK
+  MANUAL
+  DISABLED
+}
+
+enum PaymentStatus {
+  CREATED
+  CHECKOUT_PENDING
+  AUTHORIZATION_PENDING
+  CANCELLED
+  EXPIRED
+  FAILED
+}
+
+enum WebhookEventStatus {
+  RECEIVED
+  VERIFIED
+  REJECTED
+  PROCESSED
+  FAILED
+}
+
+enum IdempotencyScope {
+  CHECKOUT_SESSION
+  WEBHOOK
+  ORDER_CREATE
+}
+
+enum DeliveryStatus {
+  PENDING
+  PROCESSING
+  RETRY_SCHEDULED
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum DeliveryTarget {
+  STEAM_INVENTORY
+  GAME_SERVER
+  MANUAL
+}
+
+enum DeliveryTrigger {
+  PAYMENT_CONFIRMED
+  ADMIN_MANUAL
+  SYSTEM_RETRY
+}
+
+enum DeliveryAttemptStatus {
+  STARTED
+  SKIPPED
+  COMPLETED
+  FAILED
+}
+
+model User {
+  id           String        @id @default(cuid())
+  role         UserRole      @default(USER)
+  displayName  String?
+  email        String?
+  locale       Locale        @default(RU)
+  currency     CurrencyCode  @default(RUB)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  steamProfile SteamProfile?
+  auditLogs    AuditLog[]
+  carts        Cart[]
+  orders       Order[]
+  deliveryJobs DeliveryJob[]
+}
+
+model SteamProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  steamId     String   @unique
+  personaName String
+  avatarUrl   String?
+  profileUrl  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Server {
+  id              String                 @id @default(cuid())
+  slug            String                 @unique
+  titleRu         String
+  titleEn         String
+  descriptionRu   String?
+  descriptionEn   String?
+  mode            String
+  region          String
+  teamLimit       TeamLimit
+  address         String
+  connectCommand  String
+  wipeScheduleRu  String
+  wipeScheduleEn  String
+  capacity        Int
+  sortOrder       Int                    @default(0)
+  isFeatured      Boolean                @default(false)
+  isActive        Boolean                @default(true)
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  statusSnapshots ServerStatusSnapshot[]
+
+  @@index([slug])
+  @@index([isActive])
+  @@index([isFeatured])
+}
+
+model ServerStatusSnapshot {
+  id         String       @id @default(cuid())
+  serverId   String
+  status     ServerStatus
+  online     Int
+  queue      Int          @default(0)
+  capturedAt DateTime     @default(now())
+  server     Server       @relation(fields: [serverId], references: [id], onDelete: Cascade)
+}
+
+model ProductCategory {
+  id            String    @id @default(cuid())
+  slug          String    @unique
+  titleRu       String
+  titleEn       String
+  descriptionRu String?
+  descriptionEn String?
+  sortOrder     Int       @default(0)
+  isActive      Boolean   @default(true)
+  products      Product[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([slug])
+  @@index([isActive])
+}
+
+model Product {
+  id            String               @id @default(cuid())
+  categoryId    String
+  slug          String               @unique
+  type          ProductType
+  status        ProductStatus        @default(ACTIVE)
+  priceRub      Int
+  priceEur      Int?
+  oldPriceRub   Int?
+  oldPriceEur   Int?
+  durationDays  Int?
+  imageUrl      String?
+  sortOrder     Int                  @default(0)
+  isFeatured    Boolean              @default(false)
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  category      ProductCategory      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  translations  ProductTranslation[]
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  deliveryJobs  DeliveryJob[]
+
+  @@index([slug])
+  @@index([status])
+  @@index([isFeatured])
+  @@index([categoryId])
+}
+
+model ProductTranslation {
+  id               String   @id @default(cuid())
+  productId        String
+  locale           Locale
+  title            String
+  description      String
+  shortDescription String?
+  includedItems    String[]
+  modeRestrictions String[]
+  product          Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, locale])
+}
+
+model FAQCategory {
+  id        String       @id @default(cuid())
+  slug      String       @unique
+  titleRu   String
+  titleEn   String
+  sortOrder Int          @default(0)
+  isActive  Boolean      @default(true)
+  articles  FAQArticle[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@index([slug])
+  @@index([isActive])
+}
+
+model FAQArticle {
+  id          String      @id @default(cuid())
+  categoryId  String
+  slug        String      @unique
+  questionRu  String
+  questionEn  String
+  answerRu    String
+  answerEn    String
+  sortOrder   Int         @default(0)
+  isPublished Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  category    FAQCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([slug])
+  @@index([isPublished])
+  @@index([categoryId])
+}
+
+model RuleSection {
+  id            String     @id @default(cuid())
+  slug          String     @unique
+  titleRu       String
+  titleEn       String
+  descriptionRu String?
+  descriptionEn String?
+  sortOrder     Int        @default(0)
+  isPublished   Boolean    @default(true)
+  updatedAt     DateTime   @updatedAt
+  createdAt     DateTime   @default(now())
+  items         RuleItem[]
+}
+
+model RuleItem {
+  id        String      @id @default(cuid())
+  sectionId String
+  code      String?
+  textRu    String
+  textEn    String
+  severity  String?
+  sortOrder Int         @default(0)
+  section   RuleSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+}
+
+model BanRecord {
+  id             String    @id @default(cuid())
+  playerName     String
+  playerPublicId String?
+  reasonRu       String
+  reasonEn       String
+  serverName     String
+  status         BanStatus @default(ACTIVE)
+  bannedAt       DateTime
+  expiresAt      DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@index([status])
+  @@index([bannedAt])
+  @@index([playerName])
+}
+
+model MoneyRaceSeason {
+  id           String             @id @default(cuid())
+  slug         String             @unique
+  titleRu      String
+  titleEn      String
+  prizePoolRub Int
+  startsAt     DateTime
+  endsAt       DateTime
+  isActive     Boolean            @default(false)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  weeks        MoneyRaceWeek[]
+  entries      LeaderboardEntry[]
+
+  @@index([slug])
+  @@index([isActive])
+}
+
+model MoneyRaceWeek {
+  id         String          @id @default(cuid())
+  seasonId   String
+  weekNumber Int
+  startsAt   DateTime
+  endsAt     DateTime
+  season     MoneyRaceSeason @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+}
+
+model LeaderboardEntry {
+  id         String          @id @default(cuid())
+  seasonId   String
+  format     String
+  rank       Int
+  playerName String
+  points     Int
+  rewardRub  Int?
+  updatedAt  DateTime        @updatedAt
+  season     MoneyRaceSeason @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  @@index([seasonId])
+  @@index([seasonId, format, rank])
+}
+
+model SupportChannel {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  titleRu       String
+  titleEn       String
+  descriptionRu String
+  descriptionEn String
+  url           String
+  sortOrder     Int      @default(0)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model SeoMeta {
+  id           String   @id @default(cuid())
+  path         String
+  locale       Locale
+  title        String
+  description  String
+  canonicalUrl String?
+  noindex      Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([path, locale])
+  @@index([path])
+  @@index([locale])
+}
+
+model AuditLog {
+  id         String      @id @default(cuid())
+  userId     String?
+  action     AuditAction
+  entityType String
+  entityId   String?
+  message    String?
+  metadata   Json?
+  createdAt  DateTime    @default(now())
+  user       User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model Cart {
+  id        String       @id @default(cuid())
+  userId    String?
+  sessionId String?
+  status    CartStatus   @default(ACTIVE)
+  currency  CurrencyCode @default(RUB)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  user      User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  orders    Order[]
+
+  @@index([userId])
+  @@index([sessionId])
+  @@index([status])
+}
+
+model CartItem {
+  id           String   @id @default(cuid())
+  cartId       String
+  productId    String
+  quantity     Int      @default(1)
+  unitPriceRub Int
+  unitPriceEur Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  cart         Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@unique([cartId, productId])
+}
+
+model Order {
+  id        String       @id @default(cuid())
+  userId    String?
+  cartId    String?
+  status    OrderStatus  @default(DRAFT)
+  source    OrderSource  @default(CART)
+  currency  CurrencyCode @default(RUB)
+  totalRub  Int
+  totalEur  Int?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  expiresAt DateTime?
+  user      User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  cart      Cart?        @relation(fields: [cartId], references: [id], onDelete: SetNull)
+  items     OrderItem[]
+  payments  Payment[]
+  deliveryJobs DeliveryJob[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id           String  @id @default(cuid())
+  orderId      String
+  productId    String?
+  productSlug  String
+  productTitle String
+  quantity     Int
+  unitPriceRub Int
+  unitPriceEur Int?
+  totalRub     Int
+  totalEur     Int?
+  order        Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product      Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  deliveryJobs DeliveryJob[]
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model Payment {
+  id                String                @id @default(cuid())
+  orderId           String
+  provider          PaymentProvider
+  status            PaymentStatus         @default(CREATED)
+  currency          CurrencyCode
+  amountRub         Int
+  amountEur         Int?
+  providerPaymentId String?
+  checkoutUrl       String?
+  failureCode       String?
+  failureMessage    String?
+  metadata          Json?
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  expiresAt         DateTime?
+  order             Order                 @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  attempts          PaymentAttempt[]
+  webhookEvents     PaymentWebhookEvent[]
+
+  @@index([orderId])
+  @@index([provider])
+  @@index([status])
+  @@index([providerPaymentId])
+  @@index([createdAt])
+}
+
+model PaymentAttempt {
+  id              String          @id @default(cuid())
+  paymentId       String
+  provider        PaymentProvider
+  status          PaymentStatus
+  requestPayload  Json?
+  responsePayload Json?
+  errorMessage    String?
+  createdAt       DateTime        @default(now())
+  payment         Payment         @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([paymentId])
+  @@index([provider])
+  @@index([createdAt])
+}
+
+model PaymentWebhookEvent {
+  id              String             @id @default(cuid())
+  provider        PaymentProvider
+  providerEventId String?
+  status          WebhookEventStatus @default(RECEIVED)
+  signatureValid  Boolean            @default(false)
+  payload         Json
+  processedAt     DateTime?
+  errorMessage    String?
+  createdAt       DateTime           @default(now())
+  paymentId       String?
+  payment         Payment?           @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+
+  @@index([provider])
+  @@index([providerEventId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model IdempotencyKey {
+  id          String           @id @default(cuid())
+  key         String
+  scope       IdempotencyScope
+  requestHash String
+  response    Json?
+  lockedAt    DateTime?
+  expiresAt   DateTime
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([key, scope])
+  @@index([expiresAt])
+  @@index([scope])
+}
+
+model DeliveryJob {
+  id             String               @id @default(cuid())
+  orderId        String
+  orderItemId    String?
+  userId         String?
+  productId      String?
+  target         DeliveryTarget
+  trigger        DeliveryTrigger
+  status         DeliveryStatus       @default(PENDING)
+  productSlug    String
+  productTitle   String
+  quantity       Int                  @default(1)
+  steamId        String?
+  serverSlug     String?
+  commandPreview String?
+  errorMessage   String?
+  metadata       Json?
+  availableAfter DateTime?
+  completedAt    DateTime?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  order          Order                @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderItem      OrderItem?           @relation(fields: [orderItemId], references: [id], onDelete: SetNull)
+  user           User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
+  product        Product?             @relation(fields: [productId], references: [id], onDelete: SetNull)
+  attempts       DeliveryJobAttempt[]
+
+  @@index([orderId])
+  @@index([userId])
+  @@index([productId])
+  @@index([status])
+  @@index([target])
+  @@index([createdAt])
+  @@index([availableAfter])
+}
+
+model DeliveryJobAttempt {
+  id             String                @id @default(cuid())
+  jobId          String
+  status         DeliveryAttemptStatus
+  message        String?
+  commandPreview String?
+  errorCode      String?
+  startedAt      DateTime              @default(now())
+  finishedAt     DateTime?
+  metadata       Json?
+  job            DeliveryJob           @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@index([status])
+  @@index([startedAt])
+}

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">RUST24 Open Graph image</title>
+  <desc id="desc">Dark RUST24 branded Open Graph image with orange accents.</desc>
+  <rect width="1200" height="630" fill="#08090d"/>
+  <rect x="72" y="72" width="1056" height="486" rx="18" fill="#10131a" stroke="#fb923c" stroke-opacity="0.55" stroke-width="2"/>
+  <path d="M0 560 L1200 420 L1200 630 L0 630 Z" fill="#fb923c" fill-opacity="0.12"/>
+  <path d="M0 90 L1200 0" stroke="#fb923c" stroke-opacity="0.18" stroke-width="12"/>
+  <text x="120" y="260" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="104" font-weight="900">RUST<tspan fill="#fb923c">24</tspan></text>
+  <text x="126" y="335" fill="#d4d4d8" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700">Rust server network</text>
+  <text x="126" y="398" fill="#a1a1aa" font-family="Arial, Helvetica, sans-serif" font-size="26">Fast wipes • fair gameplay • RU / EN</text>
+  <circle cx="1010" cy="180" r="72" fill="#fb923c" fill-opacity="0.18"/>
+  <circle cx="1010" cy="180" r="34" fill="#fb923c"/>
+</svg>
