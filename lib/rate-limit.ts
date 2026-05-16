@@ -20,7 +20,18 @@ export async function rateLimit({
   windowSeconds: number;
 }): Promise<RateLimitResult> {
   const resetAt = new Date(Date.now() + windowSeconds * 1000).toISOString();
-  const redis = await connectRedis();
+  let redis: Awaited<ReturnType<typeof connectRedis>>;
+
+  try {
+    redis = await connectRedis();
+  } catch (error) {
+    if (process.env.NODE_ENV !== "production") {
+      const message = error instanceof Error ? error.message : String(error);
+      console.warn(`[rate-limit] Redis unavailable: ${message}`);
+    }
+
+    return { allowed: true, limit, remaining: limit, resetAt, source: "fallback" };
+  }
 
   if (!redis) {
     return { allowed: true, limit, remaining: limit, resetAt, source: "fallback" };

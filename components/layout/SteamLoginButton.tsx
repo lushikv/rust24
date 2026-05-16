@@ -9,10 +9,11 @@ export async function SteamLoginButton({ locale }: { locale: Locale }) {
 
   if (user) {
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-0 items-center gap-2">
         <Link
           href={`/${locale}/profile`}
-          className="focus-ring rounded-md border border-white/10 bg-white/[0.035] px-3 py-2 text-xs font-black text-white transition hover:border-orange-300/50 hover:text-orange-100"
+          className="focus-ring max-w-36 truncate rounded-md border border-white/10 bg-white/[0.035] px-3 py-2 text-xs font-black text-white transition hover:border-orange-300/50 hover:text-orange-100 sm:max-w-44"
+          title={user.displayName}
         >
           {user.displayName}
         </Link>

@@ -62,7 +62,7 @@ export default async function ProfilePage({ params }: PageProps) {
             />
           ) : null}
           <div className="space-y-2">
-            <Badge variant="muted">SteamID: {user.steamId}</Badge>
+            <Badge variant="muted">Steam ID: {user.steamId}</Badge>
             <p className="text-sm text-zinc-400">
               {locale === "ru"
                 ? "Реальные покупки и выдача товаров появятся после следующих backend-этапов."

@@ -11,7 +11,7 @@ export function FaqAccordion({
   items: FAQItem[];
   locale: Locale;
 }) {
-  const [openId, setOpenId] = useState(items[0]?.id ?? "");
+  const [openId, setOpenId] = useState("");
 
   return (
     <div className="space-y-3">

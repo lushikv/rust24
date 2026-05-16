@@ -1,15 +1,11 @@
 import type { Metadata } from "next";
+import { ConnectSteps } from "@/components/home/ConnectSteps";
+import { HomeServerBrowser } from "@/components/home/HomeServerBrowser";
+import { HomeHero } from "@/components/home/HomeHero";
+import { ProductPreviewGrid } from "@/components/home/ProductPreviewGrid";
+import { PromoEventCard } from "@/components/home/PromoEventCard";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { CtaSection } from "@/components/sections/CtaSection";
-import { FaqPreview } from "@/components/sections/FaqPreview";
-import { FeaturedModes } from "@/components/sections/FeaturedModes";
-import { FeaturedProducts } from "@/components/sections/FeaturedProducts";
-import { HeroSection } from "@/components/sections/HeroSection";
-import { MoneyRacePromo } from "@/components/sections/MoneyRacePromo";
-import { ServerStatusPreview } from "@/components/sections/ServerStatusPreview";
 import type { Locale } from "@/config/locales";
-import { getFAQPreview } from "@/lib/repositories/faq";
-import { getFeaturedGameModes } from "@/lib/repositories/gamemodes";
 import { getActiveMoneyRaceSeason } from "@/lib/repositories/money-race";
 import { getFeaturedProducts } from "@/lib/repositories/products";
 import { getFeaturedServers } from "@/lib/repositories/servers";
@@ -34,24 +30,20 @@ export async function generateMetadata({
 
 export default async function HomePage({ params }: PageProps) {
   const { locale } = await params;
-  const [servers, modes, products, faqItems, moneyRace] = await Promise.all([
+  const [servers, products, moneyRace] = await Promise.all([
     getFeaturedServers(),
-    getFeaturedGameModes(),
     getFeaturedProducts(locale),
-    getFAQPreview(),
     getActiveMoneyRaceSeason()
   ]);
 
   return (
     <>
-      <div className="w-full">
-        <HeroSection locale={locale} />
-        <ServerStatusPreview locale={locale} servers={servers} />
-        <FeaturedModes locale={locale} modes={modes} />
-        <FeaturedProducts locale={locale} products={products} />
-        <MoneyRacePromo locale={locale} season={moneyRace} />
-        <FaqPreview locale={locale} items={faqItems} />
-        <CtaSection locale={locale} />
+      <div className="w-full space-y-8">
+        <HomeHero locale={locale} season={moneyRace} servers={servers} />
+        <PromoEventCard locale={locale} season={moneyRace} />
+        <ProductPreviewGrid locale={locale} products={products} />
+        <HomeServerBrowser locale={locale} servers={servers} />
+        <ConnectSteps locale={locale} />
       </div>
       <JsonLd data={createOrganizationJsonLd(locale)} />
       <JsonLd data={createWebSiteJsonLd(locale)} />

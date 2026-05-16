@@ -8,7 +8,9 @@
     "rules": "Rules",
     "bans": "Bans",
     "moneyRace": "Money Race",
-    "support": "Support"
+    "support": "Support",
+    "userAgreement": "Terms",
+    "policy": "Privacy"
   },
   "auth": {
     "steam": "Sign in with Steam",
@@ -99,6 +101,16 @@
       "title": "RUST24 Support",
       "description": "The RUST24 support section is prepared for future contact options, player requests, and help content.",
       "breadcrumb": "Support"
+    },
+    "userAgreement": {
+      "title": "RUST24 Service Terms",
+      "description": "RUST24 service terms covering service status, game services, limits, refunds, and responsibilities.",
+      "breadcrumb": "Terms"
+    },
+    "policy": {
+      "title": "RUST24 Privacy Policy",
+      "description": "RUST24 privacy policy covering user data, cookies, Steam profile data, security, and user rights.",
+      "breadcrumb": "Privacy Policy"
     }
   }
 }

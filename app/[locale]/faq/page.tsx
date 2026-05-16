@@ -47,17 +47,23 @@ export default async function FaqPage({ params }: PageProps) {
         ))}
       </section>
       <FaqAccordion items={faqs} locale={locale} />
-      <section className="surface-card p-5">
-        <h2 className="text-2xl font-black text-white">
-          {locale === "ru" ? "Нужна помощь?" : "Need help?"}
-        </h2>
-        <div className="mt-4 flex flex-wrap gap-3 text-sm font-bold">
-          {["servers", "store", "rules", "support"].map((path) => (
-            <Link key={path} href={`/${locale}/${path}`} className="text-orange-300 hover:text-orange-200">
-              /{path}
-            </Link>
-          ))}
+      <section className="surface-card grid gap-5 p-5 md:grid-cols-[1fr_auto] md:items-center">
+        <div>
+          <p className="amber-badge">
+            {locale === "ru" ? "Правила проекта" : "Project rules"}
+          </p>
+          <h2 className="mt-3 text-2xl font-black text-white">
+            {locale === "ru" ? "Нужны правила?" : "Need the rules?"}
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-300">
+            {locale === "ru"
+              ? "Основные требования к игре, модерации и честному поведению собраны в отдельном разделе."
+              : "Gameplay, moderation, and fair-play requirements are collected in a dedicated section."}
+          </p>
         </div>
+        <Link href={`/${locale}/rules`} className="primary-cta">
+          {locale === "ru" ? "Открыть правила" : "Open rules"}
+        </Link>
       </section>
       <BreadcrumbJsonLd locale={locale} routeKey="faq" />
     </div>

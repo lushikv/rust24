@@ -12,6 +12,31 @@ export type SteamProfileSummary = {
   profileUrl: string | null;
 };
 
+function decodeXmlText(value: string) {
+  return value
+    .replaceAll("&amp;", "&")
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">")
+    .replaceAll("&quot;", '"')
+    .replaceAll("&apos;", "'");
+}
+
+function readXmlTag(xml: string, tag: string) {
+  const match = xml.match(new RegExp(`<${tag}>\\s*(?:<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>|([\\s\\S]*?))\\s*</${tag}>`, "i"));
+  const value = match?.[1] ?? match?.[2];
+
+  return value ? decodeXmlText(value.trim()) : null;
+}
+
+function steamProfileFallback(steamId: string): SteamProfileSummary {
+  return {
+    steamId,
+    personaName: steamId,
+    avatarUrl: null,
+    profileUrl: `https://steamcommunity.com/profiles/${steamId}`
+  };
+}
+
 export function getSteamRealm() {
   return process.env.STEAM_REALM ?? getBaseUrl();
 }
@@ -84,12 +109,7 @@ export async function fetchSteamProfile(steamId: string): Promise<SteamProfileSu
   const apiKey = process.env.STEAM_API_KEY;
 
   if (!apiKey) {
-    return {
-      steamId,
-      personaName: steamId,
-      avatarUrl: null,
-      profileUrl: `https://steamcommunity.com/profiles/${steamId}`
-    };
+    return fetchPublicSteamProfile(steamId);
   }
 
   const url = new URL("https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/");
@@ -99,12 +119,7 @@ export async function fetchSteamProfile(steamId: string): Promise<SteamProfileSu
   const response = await fetch(url, { cache: "no-store" });
 
   if (!response.ok) {
-    return {
-      steamId,
-      personaName: steamId,
-      avatarUrl: null,
-      profileUrl: `https://steamcommunity.com/profiles/${steamId}`
-    };
+    return fetchPublicSteamProfile(steamId);
   }
 
   const data = (await response.json()) as {
@@ -124,4 +139,32 @@ export async function fetchSteamProfile(steamId: string): Promise<SteamProfileSu
     avatarUrl: player?.avatarfull ?? null,
     profileUrl: player?.profileurl ?? `https://steamcommunity.com/profiles/${steamId}`
   };
+}
+
+async function fetchPublicSteamProfile(steamId: string): Promise<SteamProfileSummary> {
+  const fallback = steamProfileFallback(steamId);
+
+  try {
+    const url = new URL(`https://steamcommunity.com/profiles/${steamId}`);
+    url.searchParams.set("xml", "1");
+
+    const response = await fetch(url, { cache: "no-store" });
+
+    if (!response.ok) {
+      return fallback;
+    }
+
+    const xml = await response.text();
+
+    return {
+      steamId,
+      personaName: readXmlTag(xml, "steamID") ?? fallback.personaName,
+      avatarUrl: readXmlTag(xml, "avatarFull"),
+      profileUrl: readXmlTag(xml, "steamID64")
+        ? `https://steamcommunity.com/profiles/${steamId}`
+        : fallback.profileUrl
+    };
+  } catch {
+    return fallback;
+  }
 }

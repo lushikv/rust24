@@ -20,6 +20,9 @@ export async function generateMetadata({ params }: PageProps) {
 export default async function SupportPage({ params }: PageProps) {
   const { locale } = await params;
   const supportChannels = await getSupportChannels();
+  const visibleSupportChannels = supportChannels.filter((channel) =>
+    ["discord", "email"].includes(channel.id)
+  );
 
   return (
     <div className="w-full space-y-8">
@@ -33,7 +36,7 @@ export default async function SupportPage({ params }: PageProps) {
         accent="COMMS"
       />
       <section className="grid gap-4 md:grid-cols-2">
-        {supportChannels.map((channel) => (
+        {visibleSupportChannels.map((channel) => (
           <SupportChannelCard key={channel.id} channel={channel} locale={locale} />
         ))}
       </section>

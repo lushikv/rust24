@@ -14,7 +14,7 @@ export function Header({ locale }: HeaderProps) {
   return (
     <header className="sticky top-0 z-40 border-b border-orange-200/10 bg-[#07080b]/78 shadow-2xl shadow-black/25 backdrop-blur-xl">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-3 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <Link
             href={`/${locale}`}
             className="focus-ring group flex items-center gap-3 rounded-md text-xl font-black tracking-wide text-white"
@@ -34,7 +34,7 @@ export function Header({ locale }: HeaderProps) {
               <span className="text-orange-400">RUST</span>24
             </span>
           </Link>
-          <div className="flex min-w-0 items-center gap-2">
+          <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
             <LanguageSwitcher locale={locale} />
             <CurrencySwitcher />
             <Link

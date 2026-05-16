@@ -10,7 +10,9 @@ export type PublicRoute = {
     | "rules"
     | "bans"
     | "moneyRace"
-    | "support";
+    | "support"
+    | "userAgreement"
+    | "policy";
   path: string;
   sitemap: boolean;
   index: boolean;
@@ -90,6 +92,22 @@ export const publicRoutes = [
     index: true,
     priority: 0.7,
     changeFrequency: "monthly"
+  },
+  {
+    key: "userAgreement",
+    path: "/user-agreement",
+    sitemap: true,
+    index: true,
+    priority: 0.3,
+    changeFrequency: "yearly"
+  },
+  {
+    key: "policy",
+    path: "/policy",
+    sitemap: true,
+    index: true,
+    priority: 0.3,
+    changeFrequency: "yearly"
   }
 ] as const satisfies readonly PublicRoute[];
 
