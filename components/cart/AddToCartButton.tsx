@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState, useTransition } from "react";
 import type { Locale, StoreProductDetail } from "@/types/content";
 
@@ -37,45 +36,43 @@ export function AddToCartButton({
       }
 
       setState("added");
-      setMessage(locale === "ru" ? "Товар добавлен в корзину." : "Item added to cart.");
+      setMessage(locale === "ru" ? "Товар уже в корзине." : "Item is in your cart.");
     });
   }
 
+  const buttonLabel = isPending
+    ? locale === "ru"
+      ? "Добавляем..."
+      : "Adding..."
+    : state === "added"
+      ? locale === "ru"
+        ? "Добавлено в корзину"
+        : "Added to cart"
+      : locale === "ru"
+        ? "Добавить в корзину"
+        : "Add to cart";
+
   return (
-    <div className="mt-3 space-y-3">
+    <div className="mt-3 space-y-2">
       <button
-        className="block w-full rounded-md border border-white/10 px-4 py-3 text-center text-sm font-black text-white transition hover:border-orange-300 hover:text-orange-200 focus:outline-none focus:ring-2 focus:ring-orange-300 disabled:cursor-not-allowed disabled:opacity-60"
-        disabled={isPending}
+        className="primary-cta w-full disabled:cursor-not-allowed disabled:opacity-60"
+        disabled={isPending || state === "added"}
         type="button"
         onClick={addToCart}
       >
-        {isPending
-          ? locale === "ru"
-            ? "Добавляем..."
-            : "Adding..."
-          : locale === "ru"
-            ? "Добавить в корзину"
-            : "Add to cart"}
+        {buttonLabel}
       </button>
-      {message ? (
-        <p
-          className={
-            state === "error"
-              ? "text-xs leading-5 text-orange-200"
-              : "text-xs leading-5 text-zinc-300"
-          }
-        >
-          {message}
-        </p>
-      ) : null}
-      {state === "added" ? (
-        <Link
-          className="block rounded-md bg-orange-500 px-4 py-3 text-center text-sm font-black text-black transition hover:bg-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-300"
-          href={`/${locale}/cart`}
-        >
-          {locale === "ru" ? "Открыть корзину" : "Open cart"}
-        </Link>
-      ) : null}
+      <p
+        className={
+          state === "error"
+            ? "min-h-5 text-xs leading-5 text-orange-200"
+            : message
+              ? "min-h-5 text-xs leading-5 text-zinc-300"
+              : "min-h-5 text-xs leading-5 text-transparent"
+        }
+      >
+        {message ?? "."}
+      </p>
     </div>
   );
 }

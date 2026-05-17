@@ -6,11 +6,13 @@ import { SurfaceCard } from "@/components/ui/SurfaceCard";
 export function ProductPurchaseCard({
   product,
   locale,
-  currency = "RUB"
+  currency = "RUB",
+  isAuthenticated = false
 }: {
   product: StoreProductDetail;
   locale: Locale;
   currency?: Currency;
+  isAuthenticated?: boolean;
 }) {
   const price = product.price[currency];
   const oldPrice = currency === "RUB" ? product.oldPriceRub : product.oldPriceEur;
@@ -43,14 +45,17 @@ export function ProductPurchaseCard({
           <dd className="font-bold text-white">{getLocalizedValue(product.duration, locale)}</dd>
         </div>
       </dl>
-      <a
-        href="#"
-        aria-label={locale === "ru" ? "Войти через Steam для будущей покупки" : "Login with Steam for future purchase"}
-        className="primary-cta mt-6 w-full"
-      >
-        {locale === "ru" ? "Войти через Steam" : "Login with Steam"}
-      </a>
-      <AddToCartButton product={product} locale={locale} />
+      {isAuthenticated ? (
+        <AddToCartButton product={product} locale={locale} />
+      ) : (
+        <a
+          href={`/api/auth/steam?locale=${locale}&returnTo=/${locale}/store/${product.categorySlug}/${product.slug}`}
+          aria-label={locale === "ru" ? "Войти через Steam для будущей покупки" : "Login with Steam for future purchase"}
+          className="primary-cta mt-6 w-full"
+        >
+          {locale === "ru" ? "Войти через Steam" : "Login with Steam"}
+        </a>
+      )}
       <p className="mt-4 rounded-md border border-white/10 bg-black/25 p-3 text-xs leading-5 text-zinc-400">
         {locale === "ru"
           ? "Оформление заказа и платежный поток будут добавлены на более позднем этапе."

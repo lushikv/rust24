@@ -1,3 +1,4 @@
+import { AdminActionTokenInput } from "@/components/admin/AdminActionTokenInput";
 import { ProductStatus, ProductType, type Product, type ProductCategory, type ProductTranslation } from "@prisma/client";
 import { AdminCheckbox, AdminField, AdminSelect, AdminTextarea } from "@/components/admin/AdminField";
 import { AdminSubmitButton } from "@/components/admin/AdminSubmitButton";
@@ -22,6 +23,7 @@ export function ProductForm({
 
   return (
     <form action={action} className="grid gap-4 md:grid-cols-2">
+      <AdminActionTokenInput />
       <AdminSelect label="Category" name="categoryId" defaultValue={product?.categoryId}>
         {categories.map((category) => <option key={category.id} value={category.id}>{category.titleEn}</option>)}
       </AdminSelect>

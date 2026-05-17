@@ -245,21 +245,35 @@ npm run dev
 - Admin pages use noindex/nofollow metadata and are excluded from the sitemap.
 - Admin repositories live under `lib/admin/repositories/` and use Prisma on the server.
 - If PostgreSQL is unavailable, admin pages render a clear unavailable/empty state instead of using public mock fallback data.
-- Stage 11 admin tables are view-only. There are no manual paid, delivery, RCON, or real provider actions.
+- Admin v2.1 expands the navigation and dashboard analytics shell. Revenue analytics intentionally stay empty until a real payment provider introduces verified successful payment states.
+- There are no manual paid, delivery, RCON, or real provider actions.
+- Admin v2 QA notes, role rules, secret storage behavior, and deferred limitations are documented in `docs/admin.md`.
 
 Admin routes:
 
 - `/admin`
 - `/admin/servers`
 - `/admin/products`
+- `/admin/coupons`
+- `/admin/sales`
+- `/admin/static-pages`
+- `/admin/media`
+- `/admin/payment-systems`
+- `/admin/payment-notifications`
 - `/admin/orders`
 - `/admin/payments`
-- `/admin/bans`
-- `/admin/faq`
-- `/admin/rules`
-- `/admin/money-race`
-- `/admin/support`
+- `/admin/delivery`
 - `/admin/audit-log`
+
+Admin v2.1 dashboard cards:
+
+- profit for the last year as a future-ready monthly chart
+- total revenue for the last 24 hours
+- most popular product overall
+- most popular product this month
+- most popular product today
+
+Because the current payment abstraction has no `PAID` or successful provider state, these cards show clear empty states instead of fake revenue or fake sales rankings.
 
 To promote a local user after Steam login, open Prisma Studio:
 
@@ -268,6 +282,22 @@ npm run db:studio
 ```
 
 Then update the `User.role` field to `ADMIN` or `OWNER`.
+
+## Admin Server RCON Settings
+
+- Admin server management supports public server fields plus stored RCON configuration.
+- RCON settings are configuration-only: the application does not execute RCON commands, grant products, or trigger delivery.
+- RCON passwords are encrypted before storage and are never displayed after save.
+- Updating a server can leave the stored password unchanged; entering a new password replaces the encrypted value.
+- Audit logs record server writes and RCON enabled/configured state, but never include password values.
+
+Required local/admin environment variable:
+
+```bash
+ADMIN_SECRET_ENCRYPTION_KEY="replace-with-32-byte-secret-key!"
+```
+
+Use a 32-byte secret, a 64-character hex key, or base64 that decodes to 32 bytes. If the key is missing, saving a new RCON password fails safely.
 
 ## Delivery Queue Skeleton
 
@@ -298,6 +328,7 @@ Future real payment confirmation can call `createDeliveryJobsForOrder(orderId, t
 - Soft actions are preferred: active/inactive, publish/unpublish, feature/unfeature, archive.
 - No bulk destructive operations are implemented.
 - No admin action can mark payments paid, deliver products, or execute RCON.
+- New admin pages must stay server-guarded, noindex, and out of the sitemap.
 
 CRUD areas currently implemented:
 
@@ -308,6 +339,79 @@ CRUD areas currently implemented:
 - rule sections and rule items
 - ban records
 - support channels
+
+## Admin Server Products And Command Templates
+
+Admin v2.3 adds server-scoped product management:
+
+- server product list: `/admin/servers/{serverId}/products`
+- create server product: `/admin/servers/{serverId}/products/new`
+- edit server product and command templates: `/admin/servers/{serverId}/products/{productId}/edit`
+
+Products can remain global in the public store while also being attached to one or more servers through `ProductServer`. Delivery command templates are stored in `ProductCommandTemplate` for future RCON delivery workers.
+
+Allowed command placeholders:
+
+- `{steamId}`
+- `{playerName}`
+- `{quantity}`
+- `{durationDays}`
+- `{serverSlug}`
+- `{productSlug}`
+- `{orderId}`
+- `{deliveryJobId}`
+
+Unknown placeholders are rejected during admin writes. Templates are stored only; they are not executed, do not grant products, and are not exposed on public product pages.
+
+## Admin Static Pages And Media
+
+Admin v2.5 adds lightweight content management without a heavy CMS:
+
+- static page list: `/admin/static-pages`
+- create static page: `/admin/static-pages/new`
+- edit static page: `/admin/static-pages/{pageId}/edit`
+- media registry: `/admin/media`
+
+Static pages store RU/EN titles, descriptions, and plain markdown-like text. Published static pages can render at `/{locale}/pages/{slug}`; unpublished pages return 404. The `noindex` flag is respected in page metadata and noindex static pages are excluded from the sitemap.
+
+The media library is registry-only in this stage. Admins can register already-hosted safe image/video URLs with MIME type and size metadata, but direct upload storage is deferred. SVG uploads, executable files, and unsanitized upload handling are not enabled.
+
+Static page and media writes require admin access, zod validation, PostgreSQL, and audit logs.
+
+## Admin Payment Settings And Notifications
+
+Admin v2.6 adds configuration screens for future payment providers and Telegram payment notifications:
+
+- payment systems list: `/admin/payment-systems`
+- payment provider edit: `/admin/payment-systems/{provider}/edit`
+- Telegram notification settings: `/admin/payment-notifications`
+
+Configured provider list:
+
+- FreeKassa
+- AnyPay
+- Cent.app
+- Payeer
+- UnitPay
+- YooKassa
+- YooMoney P2P
+- GetPay
+
+These screens are configuration-only. They do not integrate real provider APIs, do not process real money, and do not mark payments successful. Secret fields are encrypted with `ADMIN_SECRET_ENCRYPTION_KEY`, are never displayed after saving, and are not written to audit logs.
+
+Telegram payment notifications are preview-only in this stage. The template supports:
+
+- `{playerName}`
+- `{steamId}`
+- `{productName}`
+- `{quantity}`
+- `{durationDays}`
+- `{price}`
+- `{currency}`
+- `{serverName}`
+- `{orderId}`
+
+Mock payments and checkout sessions do not send Telegram messages.
 
 ## Testing And Hardening
 

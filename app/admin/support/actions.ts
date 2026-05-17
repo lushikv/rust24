@@ -33,7 +33,7 @@ function parseSupport(formData: FormData) {
 }
 
 export async function createSupportChannelAction(formData: FormData) {
-  const user = await requireAdminWrite("support");
+  const user = await requireAdminWrite("support", formData);
   const data = parseSupport(formData);
   const row = await prisma.supportChannel.create({ data });
   await auditAdminWrite({ userId: user.id, action: AuditAction.CREATE, entityType: "SupportChannel", entityId: row.id, message: "Created support channel.", metadata: { slug: row.slug } });
@@ -42,7 +42,7 @@ export async function createSupportChannelAction(formData: FormData) {
 }
 
 export async function updateSupportChannelAction(channelId: string, formData: FormData) {
-  const user = await requireAdminWrite("support");
+  const user = await requireAdminWrite("support", formData);
   const data = parseSupport(formData);
   const row = await prisma.supportChannel.update({ where: { id: channelId }, data });
   await auditAdminWrite({ userId: user.id, action: AuditAction.UPDATE, entityType: "SupportChannel", entityId: row.id, message: "Updated support channel.", metadata: { slug: row.slug } });
@@ -51,7 +51,7 @@ export async function updateSupportChannelAction(channelId: string, formData: Fo
 }
 
 export async function toggleSupportChannelActiveAction(formData: FormData) {
-  const user = await requireAdminWrite("support");
+  const user = await requireAdminWrite("support", formData);
   const id = requiredString(formData.get("id"));
   const current = await prisma.supportChannel.findUniqueOrThrow({ where: { id } });
   const row = await prisma.supportChannel.update({ where: { id }, data: { isActive: !current.isActive } });

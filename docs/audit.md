@@ -53,3 +53,26 @@ This document records the full codebase audit and stabilization pass after Stage
 - Add a dedicated RCON adapter with timeout, retry, audit, and command allow-listing.
 - Prove delivery idempotency before sending game-server commands.
 - Do not connect delivery execution to mock payment flows.
+
+## Admin v2 Final QA
+
+The final Admin v2 QA pass focused on the admin route tree, admin write actions, secret storage, payment/RCON safety boundaries, sitemap/robots privacy rules, and runtime checks with local PostgreSQL.
+
+Fixes applied:
+
+- Applied pending Admin v2 migrations in the local PostgreSQL database and verified migration status.
+- Updated the Prisma seed command to use `node --import tsx` so local seed execution does not depend on a global `tsx` binary.
+- Added localized private route disallows to `robots.txt` for `/ru/profile`, `/en/profile`, `/ru/cart`, `/en/cart`, `/ru/checkout`, and `/en/checkout`.
+- Extracted coupon and sale validation into a pure admin helper and added unit coverage for discount ranges, product selection, code normalization, and sale date ordering.
+- Added unit coverage for admin secret encryption and localized robots privacy rules.
+- Updated Playwright smoke coverage after store CTA UI changes.
+
+Admin safety verified:
+
+- Admin routes remain server-side guarded and use centralized noindex metadata.
+- RCON passwords, payment provider secrets, and Telegram bot tokens are encrypted before storage and are not displayed after saving.
+- Payment system settings remain configuration-only.
+- Telegram payment notifications remain preview-only.
+- Command templates are stored only and reject unknown placeholders.
+- Delivery dry-runs record skipped attempts only and do not execute RCON or grant products.
+- Revenue analytics intentionally remain empty until verified real payment success exists.

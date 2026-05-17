@@ -4,6 +4,7 @@ import { describe, it } from "node:test";
 import { DeliveryError } from "@/lib/delivery/delivery-errors";
 import { assertDeliveryTransition, canTransitionDeliveryStatus } from "@/lib/delivery/delivery-state";
 import { createDeliveryCommandPreview } from "@/lib/delivery/delivery-preview";
+import { validateCommandTemplatePlaceholders } from "@/lib/delivery/command-template-validation";
 
 describe("delivery safety", () => {
   it("allows only configured delivery transitions", () => {
@@ -23,5 +24,16 @@ describe("delivery safety", () => {
 
     assert.match(preview.commandPreview, /DRY_RUN/);
     assert.match(preview.warning, /not implemented/);
+  });
+
+  it("rejects unknown command template placeholders", () => {
+    const valid = validateCommandTemplatePlaceholders("inventory.give {steamId} {productSlug} {quantity}");
+    assert.equal(valid.valid, true);
+
+    const invalid = validateCommandTemplatePlaceholders("inventory.give {steamId} {unknownSecret}");
+    assert.equal(invalid.valid, false);
+    if (!invalid.valid) {
+      assert.deepEqual(invalid.unknownPlaceholders, ["unknownSecret"]);
+    }
   });
 });

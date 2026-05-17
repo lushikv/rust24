@@ -1,9 +1,7 @@
 import { notFound } from "next/navigation";
 import { AdminDataTable } from "@/components/admin/AdminDataTable";
-import { AdminForbidden } from "@/components/admin/AdminForbidden";
 import { AdminStatusNotice } from "@/components/admin/AdminStatusNotice";
 import { createAdminMetadata } from "@/lib/admin/metadata";
-import { getAdminAccess } from "@/lib/admin/require-admin";
 import { getAdminDeliveryJob } from "@/lib/admin/repositories/delivery";
 
 type PageProps = {
@@ -19,9 +17,6 @@ function formatDate(value: string | null) {
 }
 
 export default async function AdminDeliveryDetailPage({ params }: PageProps) {
-  const access = await getAdminAccess("delivery");
-  if (access.status === "unauthenticated") return <AdminForbidden type="login" />;
-  if (access.status === "forbidden") return <AdminForbidden type="forbidden" />;
 
   const { jobId } = await params;
   const result = await getAdminDeliveryJob(jobId);

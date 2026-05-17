@@ -90,7 +90,7 @@ function parseProductForm(formData: FormData) {
 }
 
 export async function createProductCategoryAction(formData: FormData) {
-  const user = await requireAdminWrite("products");
+  const user = await requireAdminWrite("products", formData);
   const data = parseCategoryForm(formData);
   const category = await prisma.productCategory.create({ data });
   await auditAdminWrite({ userId: user.id, action: AuditAction.CREATE, entityType: "ProductCategory", entityId: category.id, message: "Created product category.", metadata: { slug: category.slug } });
@@ -99,7 +99,7 @@ export async function createProductCategoryAction(formData: FormData) {
 }
 
 export async function updateProductCategoryAction(categoryId: string, formData: FormData) {
-  const user = await requireAdminWrite("products");
+  const user = await requireAdminWrite("products", formData);
   const data = parseCategoryForm(formData);
   const category = await prisma.productCategory.update({ where: { id: categoryId }, data });
   await auditAdminWrite({ userId: user.id, action: AuditAction.UPDATE, entityType: "ProductCategory", entityId: category.id, message: "Updated product category.", metadata: { slug: category.slug } });
@@ -108,7 +108,7 @@ export async function updateProductCategoryAction(categoryId: string, formData: 
 }
 
 export async function toggleProductCategoryActiveAction(formData: FormData) {
-  const user = await requireAdminWrite("products");
+  const user = await requireAdminWrite("products", formData);
   const id = requiredString(formData.get("id"));
   const current = await prisma.productCategory.findUniqueOrThrow({ where: { id } });
   const updated = await prisma.productCategory.update({ where: { id }, data: { isActive: !current.isActive } });
@@ -132,7 +132,7 @@ async function upsertTranslations(productId: string, data: z.infer<typeof produc
 }
 
 export async function createProductAction(formData: FormData) {
-  const user = await requireAdminWrite("products");
+  const user = await requireAdminWrite("products", formData);
   const data = parseProductForm(formData);
   const product = await prisma.product.create({
     data: {
@@ -157,7 +157,7 @@ export async function createProductAction(formData: FormData) {
 }
 
 export async function updateProductAction(productId: string, formData: FormData) {
-  const user = await requireAdminWrite("products");
+  const user = await requireAdminWrite("products", formData);
   const data = parseProductForm(formData);
   const product = await prisma.product.update({
     where: { id: productId },
@@ -183,7 +183,7 @@ export async function updateProductAction(productId: string, formData: FormData)
 }
 
 export async function archiveProductAction(formData: FormData) {
-  const user = await requireAdminWrite("products");
+  const user = await requireAdminWrite("products", formData);
   const id = requiredString(formData.get("id"));
   await prisma.product.update({ where: { id }, data: { status: ProductStatus.ARCHIVED } });
   await auditAdminWrite({ userId: user.id, action: AuditAction.UPDATE, entityType: "Product", entityId: id, message: "Archived product." });
@@ -191,7 +191,7 @@ export async function archiveProductAction(formData: FormData) {
 }
 
 export async function toggleProductFeaturedAction(formData: FormData) {
-  const user = await requireAdminWrite("products");
+  const user = await requireAdminWrite("products", formData);
   const id = requiredString(formData.get("id"));
   const current = await prisma.product.findUniqueOrThrow({ where: { id } });
   const updated = await prisma.product.update({ where: { id }, data: { isFeatured: !current.isFeatured } });

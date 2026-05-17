@@ -7,6 +7,7 @@ import {
   getProductCategories,
   getProducts
 } from "@/lib/repositories/products";
+import { getCurrentUser } from "@/lib/auth/current-user";
 import { PageHero } from "@/components/ui/PageHero";
 
 type PageProps = {
@@ -22,9 +23,10 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function StorePage({ params }: PageProps) {
   const { locale } = await params;
-  const [productCategories, products] = await Promise.all([
+  const [productCategories, products, currentUser] = await Promise.all([
     getProductCategories(locale),
-    getProducts(locale)
+    getProducts(locale),
+    getCurrentUser()
   ]);
 
   return (
@@ -43,7 +45,11 @@ export default async function StorePage({ params }: PageProps) {
           <ProductCategoryCard key={category.id} category={category} locale={locale} />
         ))}
       </section>
-      <ProductGrid products={products} locale={locale} />
+      <ProductGrid
+        isAuthenticated={Boolean(currentUser)}
+        products={products}
+        locale={locale}
+      />
       <p className="metal-panel border-orange-500/20 p-4 text-sm text-orange-100">
         {locale === "ru"
           ? "Дисклеймер: это демонстрационный контент без реального оформления покупки."

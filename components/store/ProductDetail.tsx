@@ -7,10 +7,12 @@ import { ProductRestrictions } from "@/components/store/ProductRestrictions";
 
 export function ProductDetail({
   product,
-  locale
+  locale,
+  isAuthenticated = false
 }: {
   product: StoreProductDetail;
   locale: Locale;
+  isAuthenticated?: boolean;
 }) {
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
@@ -32,7 +34,11 @@ export function ProductDetail({
         <ProductIncludedItems product={product} locale={locale} />
         <ProductRestrictions product={product} locale={locale} />
       </div>
-      <ProductPurchaseCard product={product} locale={locale} />
+      <ProductPurchaseCard
+        isAuthenticated={isAuthenticated}
+        product={product}
+        locale={locale}
+      />
     </div>
   );
 }

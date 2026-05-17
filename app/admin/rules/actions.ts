@@ -51,7 +51,7 @@ function parseItem(formData: FormData) {
 }
 
 export async function createRuleSectionAction(formData: FormData) {
-  const user = await requireAdminWrite("rules");
+  const user = await requireAdminWrite("rules", formData);
   const data = parseSection(formData);
   const row = await prisma.ruleSection.create({ data });
   await auditAdminWrite({ userId: user.id, action: AuditAction.CREATE, entityType: "RuleSection", entityId: row.id, message: "Created rule section.", metadata: { slug: row.slug } });
@@ -60,7 +60,7 @@ export async function createRuleSectionAction(formData: FormData) {
 }
 
 export async function updateRuleSectionAction(sectionId: string, formData: FormData) {
-  const user = await requireAdminWrite("rules");
+  const user = await requireAdminWrite("rules", formData);
   const data = parseSection(formData);
   const row = await prisma.ruleSection.update({ where: { id: sectionId }, data });
   await auditAdminWrite({ userId: user.id, action: AuditAction.UPDATE, entityType: "RuleSection", entityId: row.id, message: "Updated rule section.", metadata: { slug: row.slug } });
@@ -69,7 +69,7 @@ export async function updateRuleSectionAction(sectionId: string, formData: FormD
 }
 
 export async function toggleRuleSectionPublishedAction(formData: FormData) {
-  const user = await requireAdminWrite("rules");
+  const user = await requireAdminWrite("rules", formData);
   const id = requiredString(formData.get("id"));
   const current = await prisma.ruleSection.findUniqueOrThrow({ where: { id } });
   const row = await prisma.ruleSection.update({ where: { id }, data: { isPublished: !current.isPublished } });
@@ -78,7 +78,7 @@ export async function toggleRuleSectionPublishedAction(formData: FormData) {
 }
 
 export async function createRuleItemAction(formData: FormData) {
-  const user = await requireAdminWrite("rules");
+  const user = await requireAdminWrite("rules", formData);
   const data = parseItem(formData);
   const row = await prisma.ruleItem.create({ data });
   await auditAdminWrite({ userId: user.id, action: AuditAction.CREATE, entityType: "RuleItem", entityId: row.id, message: "Created rule item." });
@@ -87,7 +87,7 @@ export async function createRuleItemAction(formData: FormData) {
 }
 
 export async function updateRuleItemAction(itemId: string, formData: FormData) {
-  const user = await requireAdminWrite("rules");
+  const user = await requireAdminWrite("rules", formData);
   const data = parseItem(formData);
   const row = await prisma.ruleItem.update({ where: { id: itemId }, data });
   await auditAdminWrite({ userId: user.id, action: AuditAction.UPDATE, entityType: "RuleItem", entityId: row.id, message: "Updated rule item." });

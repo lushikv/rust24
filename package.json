@@ -46,6 +46,6 @@
     "vitest": "^3.2.4"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "node --import tsx prisma/seed.ts"
   }
 }

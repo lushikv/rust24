@@ -1,11 +1,11 @@
+import { AdminLink } from "@/components/admin/AdminLink";
 import { AdminDataTable } from "@/components/admin/AdminDataTable";
-import { AdminForbidden } from "@/components/admin/AdminForbidden";
 import { AdminStatusNotice } from "@/components/admin/AdminStatusNotice";
 import { createAdminMetadata } from "@/lib/admin/metadata";
-import { getAdminAccess } from "@/lib/admin/require-admin";
 import { getAdminMoneyRaceSeasons } from "@/lib/admin/repositories/money-race";
 import { toggleMoneyRaceSeasonActiveAction } from "@/app/admin/money-race/actions";
 
+import { AdminActionButton } from "@/components/admin/AdminActionButton";
 export const metadata = createAdminMetadata("Money Race");
 export const dynamic = "force-dynamic";
 
@@ -14,9 +14,6 @@ function formatDate(value: string) {
 }
 
 export default async function AdminMoneyRacePage() {
-  const access = await getAdminAccess("moneyRace");
-  if (access.status === "unauthenticated") return <AdminForbidden type="login" />;
-  if (access.status === "forbidden") return <AdminForbidden type="forbidden" />;
 
   const result = await getAdminMoneyRaceSeasons();
 
@@ -24,7 +21,7 @@ export default async function AdminMoneyRacePage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <PageIntro title="Money Race" description="Manage seasons. Leaderboard entry editing remains deferred." />
-        <Link className="rounded-md bg-orange-500 px-4 py-3 text-sm font-black text-black" href="/admin/money-race/seasons/new">New season</Link>
+        <AdminLink className="rounded-md bg-orange-500 px-4 py-3 text-sm font-black text-black" href="/admin/money-race/seasons/new">New season</AdminLink>
       </div>
       {!result.available ? <AdminStatusNotice message="Database is unavailable. Money Race rows cannot be loaded." /> : null}
       <AdminDataTable
@@ -36,7 +33,7 @@ export default async function AdminMoneyRacePage() {
           { key: "ends", header: "Ends", render: (row) => formatDate(row.endsAt) },
           { key: "active", header: "Active", render: (row) => String(row.isActive) },
           { key: "entries", header: "Entries", render: (row) => row.entriesCount },
-          { key: "edit", header: "Edit", render: (row) => <Link className="font-bold text-orange-300" href={`/admin/money-race/seasons/${row.id}/edit`}>Edit</Link> },
+          { key: "edit", header: "Edit", render: (row) => <AdminLink className="font-bold text-orange-300" href={`/admin/money-race/seasons/${row.id}/edit`}>Edit</AdminLink> },
           { key: "toggle", header: "Toggle", render: (row) => <AdminActionButton action={toggleMoneyRaceSeasonActiveAction} fields={{ id: row.id }}>{row.isActive ? "Deactivate" : "Activate"}</AdminActionButton> }
         ]}
         rows={result.data}
@@ -53,5 +50,3 @@ function PageIntro({ title, description }: { title: string; description: string 
     </div>
   );
 }
-import Link from "next/link";
-import { AdminActionButton } from "@/components/admin/AdminActionButton";

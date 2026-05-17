@@ -1,3 +1,4 @@
+import { AdminActionTokenInput } from "@/components/admin/AdminActionTokenInput";
 import { BanStatus, type BanRecord } from "@prisma/client";
 import { AdminField, AdminSelect, AdminTextarea } from "@/components/admin/AdminField";
 import { AdminSubmitButton } from "@/components/admin/AdminSubmitButton";
@@ -11,6 +12,7 @@ export function BanForm({ ban }: { ban?: BanRecord }) {
   const action = ban ? updateBanAction.bind(null, ban.id) : createBanAction;
   return (
     <form action={action} className="grid gap-4 md:grid-cols-2">
+      <AdminActionTokenInput />
       <AdminField label="Player name" name="playerName" defaultValue={ban?.playerName} required />
       <AdminField label="Player public ID" name="playerPublicId" defaultValue={ban?.playerPublicId} />
       <AdminTextarea label="Reason RU" name="reasonRu" defaultValue={ban?.reasonRu} required />

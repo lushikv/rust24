@@ -1,10 +1,12 @@
 import { AdminDataTable } from "@/components/admin/AdminDataTable";
 import { AdminEmptyState } from "@/components/admin/AdminEmptyState";
-import { AdminForbidden } from "@/components/admin/AdminForbidden";
+import { AdminMetricCard } from "@/components/admin/AdminMetricCard";
+import { AdminPopularProductCard } from "@/components/admin/AdminPopularProductCard";
+import { AdminRevenueChart } from "@/components/admin/AdminRevenueChart";
 import { AdminStatCard } from "@/components/admin/AdminStatCard";
 import { AdminStatusNotice } from "@/components/admin/AdminStatusNotice";
 import { createAdminMetadata } from "@/lib/admin/metadata";
-import { getAdminAccess } from "@/lib/admin/require-admin";
+import { getAdminAnalytics } from "@/lib/admin/repositories/analytics";
 import { getAdminDashboard } from "@/lib/admin/repositories/dashboard";
 
 export const metadata = createAdminMetadata("Dashboard");
@@ -22,12 +24,12 @@ function formatDate(value: string) {
 }
 
 export default async function AdminDashboardPage() {
-  const access = await getAdminAccess();
-  if (access.status === "unauthenticated") return <AdminForbidden type="login" />;
-  if (access.status === "forbidden") return <AdminForbidden type="forbidden" />;
-
-  const result = await getAdminDashboard();
+  const [result, analyticsResult] = await Promise.all([
+    getAdminDashboard(),
+    getAdminAnalytics()
+  ]);
   const { data } = result;
+  const analytics = analyticsResult.data;
 
   return (
     <div className="space-y-6">
@@ -50,6 +52,40 @@ export default async function AdminDashboardPage() {
       <section className="grid gap-4 lg:grid-cols-2">
         <AdminStatCard label="Database" value={data.dbStatus} />
         <AdminStatCard label="Redis" value={data.redisStatus} />
+      </section>
+      <section className="grid gap-4 lg:grid-cols-3">
+        <AdminMetricCard
+          label="Revenue 24h"
+          value={`${analytics.revenueLast24HoursRub} RUB`}
+          hint={analytics.emptyReason}
+        />
+        <AdminPopularProductCard
+          title="Popular product overall"
+          product={analytics.popularProductOverall}
+        />
+        <AdminPopularProductCard
+          title="Popular product today"
+          product={analytics.popularProductToday}
+        />
+      </section>
+      <section className="grid gap-4 lg:grid-cols-[1.4fr_0.8fr]">
+        <AdminRevenueChart
+          points={analytics.monthlyProfit}
+          emptyReason={analytics.emptyReason}
+        />
+        <div className="space-y-3">
+          <h2 className="text-xl font-black text-white">Product momentum</h2>
+          <AdminPopularProductCard
+            title="Popular product this month"
+            product={analytics.popularProductThisMonth}
+          />
+          {!analytics.revenueAnalyticsAvailable ? (
+            <AdminEmptyState
+              title="No fake revenue"
+              description="RUST24 does not have a verified paid/succeeded payment state yet, so dashboard analytics intentionally avoid simulated revenue."
+            />
+          ) : null}
+        </div>
       </section>
       <section className="space-y-3">
         <h2 className="text-xl font-black text-white">Payments by status</h2>

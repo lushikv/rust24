@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { AdminLink } from "@/components/admin/AdminLink";
 import type { ReactNode } from "react";
 
 export function AdminFormShell({
@@ -15,9 +15,9 @@ export function AdminFormShell({
   return (
     <div className="space-y-6">
       <div>
-        <Link className="text-sm font-bold text-orange-300 hover:text-orange-200" href={backHref}>
+        <AdminLink className="text-sm font-bold text-orange-300 hover:text-orange-200" href={backHref}>
           Back
-        </Link>
+        </AdminLink>
         <h1 className="mt-3 text-3xl font-black text-white">{title}</h1>
         <p className="mt-2 text-sm leading-6 text-zinc-400">{description}</p>
       </div>

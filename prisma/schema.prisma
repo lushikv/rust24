@@ -155,6 +155,7 @@ model User {
   carts        Cart[]
   orders       Order[]
   deliveryJobs DeliveryJob[]
+  couponRedemptions CouponRedemption[]
 }
 
 model SteamProfile {
@@ -170,26 +171,33 @@ model SteamProfile {
 }
 
 model Server {
-  id              String                 @id @default(cuid())
-  slug            String                 @unique
-  titleRu         String
-  titleEn         String
-  descriptionRu   String?
-  descriptionEn   String?
-  mode            String
-  region          String
-  teamLimit       TeamLimit
-  address         String
-  connectCommand  String
-  wipeScheduleRu  String
-  wipeScheduleEn  String
-  capacity        Int
-  sortOrder       Int                    @default(0)
-  isFeatured      Boolean                @default(false)
-  isActive        Boolean                @default(true)
-  createdAt       DateTime               @default(now())
-  updatedAt       DateTime               @updatedAt
-  statusSnapshots ServerStatusSnapshot[]
+  id                    String                   @id @default(cuid())
+  slug                  String                   @unique
+  titleRu               String
+  titleEn               String
+  descriptionRu         String?
+  descriptionEn         String?
+  mode                  String
+  region                String
+  teamLimit             TeamLimit
+  publicAddress         String?
+  address               String
+  connectCommand        String
+  wipeScheduleRu        String
+  wipeScheduleEn        String
+  capacity              Int
+  sortOrder             Int                      @default(0)
+  isFeatured            Boolean                  @default(false)
+  isActive              Boolean                  @default(true)
+  rconHost              String?
+  rconPort              Int?
+  rconPasswordEncrypted String?
+  rconEnabled           Boolean                  @default(false)
+  createdAt             DateTime                 @default(now())
+  updatedAt             DateTime                 @updatedAt
+  statusSnapshots       ServerStatusSnapshot[]
+  productServers        ProductServer[]
+  commandTemplates      ProductCommandTemplate[]
 
   @@index([slug])
   @@index([isActive])
@@ -224,26 +232,30 @@ model ProductCategory {
 }
 
 model Product {
-  id            String               @id @default(cuid())
-  categoryId    String
-  slug          String               @unique
-  type          ProductType
-  status        ProductStatus        @default(ACTIVE)
-  priceRub      Int
-  priceEur      Int?
-  oldPriceRub   Int?
-  oldPriceEur   Int?
-  durationDays  Int?
-  imageUrl      String?
-  sortOrder     Int                  @default(0)
-  isFeatured    Boolean              @default(false)
-  createdAt     DateTime             @default(now())
-  updatedAt     DateTime             @updatedAt
-  category      ProductCategory      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  translations  ProductTranslation[]
-  cartItems     CartItem[]
-  orderItems    OrderItem[]
-  deliveryJobs  DeliveryJob[]
+  id               String                   @id @default(cuid())
+  categoryId       String
+  slug             String                   @unique
+  type             ProductType
+  status           ProductStatus            @default(ACTIVE)
+  priceRub         Int
+  priceEur         Int?
+  oldPriceRub      Int?
+  oldPriceEur      Int?
+  durationDays     Int?
+  imageUrl         String?
+  sortOrder        Int                      @default(0)
+  isFeatured       Boolean                  @default(false)
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+  category         ProductCategory          @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  translations     ProductTranslation[]
+  productServers   ProductServer[]
+  commandTemplates ProductCommandTemplate[]
+  couponProducts   CouponProduct[]
+  saleCampaignProducts SaleCampaignProduct[]
+  cartItems        CartItem[]
+  orderItems       OrderItem[]
+  deliveryJobs     DeliveryJob[]
 
   @@index([slug])
   @@index([status])
@@ -263,6 +275,113 @@ model ProductTranslation {
   product          Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([productId, locale])
+}
+
+model ProductServer {
+  id        String   @id @default(cuid())
+  productId String
+  serverId  String
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  server    Server   @relation(fields: [serverId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, serverId])
+  @@index([productId])
+  @@index([serverId])
+}
+
+model ProductCommandTemplate {
+  id              String   @id @default(cuid())
+  productId       String
+  serverId        String?
+  commandTemplate String
+  description     String?
+  isActive        Boolean  @default(true)
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  server          Server?  @relation(fields: [serverId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([serverId])
+  @@index([isActive])
+}
+
+model Coupon {
+  id                   String             @id @default(cuid())
+  code                 String             @unique
+  discountPercent      Int
+  usageLimit           Int?
+  usedCount            Int                @default(0)
+  expiresAt            DateTime?
+  isActive             Boolean            @default(true)
+  appliesToAllProducts Boolean            @default(false)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  products             CouponProduct[]
+  redemptions          CouponRedemption[]
+
+  @@index([code])
+  @@index([isActive])
+  @@index([expiresAt])
+}
+
+model CouponProduct {
+  id        String  @id @default(cuid())
+  couponId  String
+  productId String
+  coupon    Coupon  @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([couponId, productId])
+  @@index([couponId])
+  @@index([productId])
+}
+
+model CouponRedemption {
+  id       String   @id @default(cuid())
+  couponId String
+  userId   String
+  orderId  String?
+  usedAt   DateTime @default(now())
+  coupon   Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order    Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@unique([couponId, userId])
+  @@index([couponId])
+  @@index([userId])
+  @@index([orderId])
+}
+
+model SaleCampaign {
+  id                   String                @id @default(cuid())
+  title                String
+  discountPercent      Int
+  startsAt             DateTime
+  endsAt               DateTime
+  isActive             Boolean               @default(true)
+  appliesToAllProducts Boolean               @default(false)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  products             SaleCampaignProduct[]
+
+  @@index([isActive])
+  @@index([startsAt])
+  @@index([endsAt])
+}
+
+model SaleCampaignProduct {
+  id             String       @id @default(cuid())
+  saleCampaignId String
+  productId      String
+  saleCampaign   SaleCampaign @relation(fields: [saleCampaignId], references: [id], onDelete: Cascade)
+  product        Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([saleCampaignId, productId])
+  @@index([saleCampaignId])
+  @@index([productId])
 }
 
 model FAQCategory {
@@ -413,6 +532,72 @@ model SeoMeta {
   @@index([locale])
 }
 
+model StaticPage {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  titleRu       String
+  titleEn       String
+  descriptionRu String?
+  descriptionEn String?
+  contentRu     String
+  contentEn     String
+  isPublished   Boolean  @default(false)
+  noindex       Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([slug])
+  @@index([isPublished])
+  @@index([noindex])
+}
+
+model MediaFile {
+  id             String   @id @default(cuid())
+  filename       String
+  originalName   String
+  mimeType       String
+  sizeBytes      Int
+  url            String
+  previewUrl     String?
+  attachedToType String?
+  attachedToId   String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([filename])
+  @@index([mimeType])
+  @@index([attachedToType, attachedToId])
+  @@index([createdAt])
+}
+
+model PaymentSystemSetting {
+  id                    String   @id @default(cuid())
+  provider              String   @unique
+  displayName           String
+  isEnabled             Boolean  @default(false)
+  publicConfig          Json?
+  secretConfigEncrypted String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([provider])
+  @@index([isEnabled])
+}
+
+model PaymentNotificationSetting {
+  id                String   @id @default(cuid())
+  channel           String   @unique
+  isEnabled         Boolean  @default(false)
+  botTokenEncrypted String?
+  chatId            String?
+  messageTemplate   String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([channel])
+  @@index([isEnabled])
+}
+
 model AuditLog {
   id         String      @id @default(cuid())
   userId     String?
@@ -458,22 +643,23 @@ model CartItem {
 }
 
 model Order {
-  id        String       @id @default(cuid())
-  userId    String?
-  cartId    String?
-  status    OrderStatus  @default(DRAFT)
-  source    OrderSource  @default(CART)
-  currency  CurrencyCode @default(RUB)
-  totalRub  Int
-  totalEur  Int?
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-  expiresAt DateTime?
-  user      User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
-  cart      Cart?        @relation(fields: [cartId], references: [id], onDelete: SetNull)
-  items     OrderItem[]
-  payments  Payment[]
+  id           String        @id @default(cuid())
+  userId       String?
+  cartId       String?
+  status       OrderStatus   @default(DRAFT)
+  source       OrderSource   @default(CART)
+  currency     CurrencyCode  @default(RUB)
+  totalRub     Int
+  totalEur     Int?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  expiresAt    DateTime?
+  user         User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  cart         Cart?         @relation(fields: [cartId], references: [id], onDelete: SetNull)
+  items        OrderItem[]
+  payments     Payment[]
   deliveryJobs DeliveryJob[]
+  couponRedemptions CouponRedemption[]
 
   @@index([userId])
   @@index([status])
@@ -481,7 +667,7 @@ model Order {
 }
 
 model OrderItem {
-  id           String  @id @default(cuid())
+  id           String        @id @default(cuid())
   orderId      String
   productId    String?
   productSlug  String
@@ -491,8 +677,8 @@ model OrderItem {
   unitPriceEur Int?
   totalRub     Int
   totalEur     Int?
-  order        Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product      Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  order        Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product      Product?      @relation(fields: [productId], references: [id], onDelete: SetNull)
   deliveryJobs DeliveryJob[]
 
   @@index([orderId])

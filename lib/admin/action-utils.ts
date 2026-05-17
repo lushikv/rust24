@@ -2,12 +2,43 @@ import "server-only";
 
 import { redirect } from "next/navigation";
 import { UserRole, type AuditAction } from "@prisma/client";
+import { ADMIN_ACTION_TOKEN_FIELD, verifyAdminActionToken } from "@/lib/admin/action-token";
 import { writeAuditLog } from "@/lib/admin/audit";
 import { canAccessAdminSection, type AdminSection } from "@/lib/admin/permissions";
 import { getCurrentUser } from "@/lib/auth/current-user";
+import { prisma } from "@/lib/prisma";
 
-export async function requireAdminWrite(section: AdminSection) {
-  const user = await getCurrentUser();
+type AdminWriteUser = {
+  id: string;
+  role: UserRole;
+};
+
+async function getTokenUser(formData?: FormData): Promise<AdminWriteUser | null> {
+  const payload = verifyAdminActionToken(
+    typeof formData?.get(ADMIN_ACTION_TOKEN_FIELD) === "string"
+      ? String(formData.get(ADMIN_ACTION_TOKEN_FIELD))
+      : null
+  );
+
+  if (!payload) return null;
+
+  const user = await prisma.user.findUnique({
+    where: { id: payload.userId },
+    include: { steamProfile: true }
+  });
+
+  if (!user?.steamProfile || user.steamProfile.steamId !== payload.steamId) {
+    return null;
+  }
+
+  return {
+    id: user.id,
+    role: user.role
+  };
+}
+
+export async function requireAdminWrite(section: AdminSection, formData?: FormData) {
+  const user = (await getCurrentUser()) ?? (await getTokenUser(formData));
 
   if (!user) {
     redirect("/ru?auth=required");

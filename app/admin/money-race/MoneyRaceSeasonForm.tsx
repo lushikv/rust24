@@ -1,3 +1,4 @@
+import { AdminActionTokenInput } from "@/components/admin/AdminActionTokenInput";
 import type { MoneyRaceSeason } from "@prisma/client";
 import { AdminCheckbox, AdminField } from "@/components/admin/AdminField";
 import { AdminSubmitButton } from "@/components/admin/AdminSubmitButton";
@@ -11,6 +12,7 @@ export function MoneyRaceSeasonForm({ season }: { season?: MoneyRaceSeason }) {
   const action = season ? updateMoneyRaceSeasonAction.bind(null, season.id) : createMoneyRaceSeasonAction;
   return (
     <form action={action} className="grid gap-4 md:grid-cols-2">
+      <AdminActionTokenInput />
       <AdminField label="Slug" name="slug" defaultValue={season?.slug} required />
       <AdminField label="Prize pool RUB" name="prizePoolRub" type="number" defaultValue={season?.prizePoolRub ?? 0} />
       <AdminField label="Title RU" name="titleRu" defaultValue={season?.titleRu} required />

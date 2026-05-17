@@ -18,7 +18,7 @@ test("localized public pages and protected shells load", async ({ page, request 
   await page.goto("/ru/store/passes/starter-pass");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.locator("body")).toContainText(/₽|RUB/);
-  await expect(page.getByRole("button", { name: /cart|корзин/i })).toBeVisible();
+  await expect(page.locator("body")).toContainText(/Добавить в корзину|Войти через Steam|Add to cart|Login with Steam/i);
 
   await page.goto("/ru/faq");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();

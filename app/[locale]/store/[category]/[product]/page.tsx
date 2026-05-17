@@ -10,6 +10,7 @@ import {
   getProductBySlug,
   getProductsByCategorySlug
 } from "@/lib/repositories/products";
+import { getCurrentUser } from "@/lib/auth/current-user";
 import { createDynamicPageMetadata, getCanonicalUrl } from "@/lib/seo";
 import {
   createBreadcrumbJsonLd,
@@ -71,9 +72,12 @@ export default async function StoreProductPage({ params }: PageProps) {
     notFound();
   }
 
-  const relatedProducts = (await getProductsByCategorySlug(product.categorySlug, locale))
-    .filter((item) => item.slug !== product.slug)
-    .slice(0, 3);
+  const [relatedProducts, currentUser] = await Promise.all([
+    getProductsByCategorySlug(product.categorySlug, locale).then((items) =>
+      items.filter((item) => item.slug !== product.slug).slice(0, 3)
+    ),
+    getCurrentUser()
+  ]);
   const productTitle = getLocalizedValue(product.title, locale);
   const categoryTitle = getLocalizedValue(product.category.title, locale);
   const breadcrumbs = [
@@ -105,13 +109,21 @@ export default async function StoreProductPage({ params }: PageProps) {
           {locale === "ru" ? "Назад в категорию" : "Back to category"}
         </Link>
       </nav>
-      <ProductDetail product={product} locale={locale} />
+      <ProductDetail
+        isAuthenticated={Boolean(currentUser)}
+        product={product}
+        locale={locale}
+      />
       {relatedProducts.length > 0 ? (
         <section>
           <h2 className="section-title mb-4">
             {locale === "ru" ? "Похожие товары" : "Related products"}
           </h2>
-          <ProductGrid products={relatedProducts} locale={locale} />
+          <ProductGrid
+            isAuthenticated={Boolean(currentUser)}
+            products={relatedProducts}
+            locale={locale}
+          />
         </section>
       ) : null}
       <JsonLd data={createBreadcrumbJsonLd(breadcrumbs)} />

@@ -109,3 +109,19 @@ Use `npm run dev` for local development.
 - Do not use copyrighted third-party assets, copied server-network layouts, copied product wording, or external branding in the RUST24 public UI.
 - Avoid heavy UI, animation, analytics, or media dependencies unless there is a clear performance-safe reason and the user explicitly approves the tradeoff.
 - Keep public UI accessible and performant: readable contrast, visible focus states, semantic headings, stable layout, and no unnecessary client components.
+- Admin analytics must never invent revenue, paid orders, successful payments, or popular product rankings without verified real payment success data.
+- New admin pages must be server-side guarded, noindex/nofollow, and excluded from sitemap/robots public indexing.
+- Product command templates are configuration only; they must never execute RCON or grant products before an explicit RCON/delivery execution stage.
+- Admin command template writes must reject unknown placeholders and must not expose secrets or delivery internals to public pages.
+- Never expose decrypted RCON passwords in UI, API responses, logs, audit metadata, or client props.
+- RCON password updates require encryption with `ADMIN_SECRET_ENCRYPTION_KEY`; fail safely if the key is unavailable.
+- Never execute RCON commands before an explicit RCON execution stage.
+- Static page admin content must stay plain-text/markdown-like unless a complex CMS is explicitly requested.
+- Public static pages must render only published records, respect noindex metadata, and keep unpublished/private pages out of the sitemap.
+- Media uploads must validate file type, size, and filename; unsafe SVG uploads remain disabled unless sanitized by an explicit later stage.
+- Media registry entries must not execute files or expose private storage paths.
+- Payment provider settings are configuration only until an explicit real payment integration stage wires them into checkout.
+- Never expose payment provider secrets or Telegram bot tokens in UI, API responses, logs, audit metadata, or client props.
+- Telegram payment notifications must not be sent automatically for mock payments or unverified payment states.
+- Notification templates must reject unknown variables and render missing optional values safely.
+- Keep `docs/admin.md` current after admin navigation, RBAC, secret handling, CRUD, payment settings, delivery, or RCON-related changes.

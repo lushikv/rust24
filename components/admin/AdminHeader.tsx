@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { AdminLink } from "@/components/admin/AdminLink";
 import type { AuthUser } from "@/lib/auth/types";
 
 export function AdminHeader({ user }: { user: AuthUser }) {
@@ -14,18 +14,18 @@ export function AdminHeader({ user }: { user: AuthUser }) {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Link
+          <AdminLink
             className="rounded-md border border-white/10 px-3 py-2 text-sm font-bold text-zinc-200 transition hover:border-orange-300 hover:text-orange-200"
             href="/ru"
           >
             Public site
-          </Link>
-          <Link
+          </AdminLink>
+          <AdminLink
             className="rounded-md bg-orange-500 px-3 py-2 text-sm font-black text-black transition hover:bg-orange-400"
             href="/api/auth/logout?returnTo=/ru"
           >
             Logout
-          </Link>
+          </AdminLink>
         </div>
       </div>
     </header>

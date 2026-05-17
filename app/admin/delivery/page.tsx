@@ -1,9 +1,7 @@
-import Link from "next/link";
+import { AdminLink } from "@/components/admin/AdminLink";
 import { AdminDataTable } from "@/components/admin/AdminDataTable";
-import { AdminForbidden } from "@/components/admin/AdminForbidden";
 import { AdminStatusNotice } from "@/components/admin/AdminStatusNotice";
 import { createAdminMetadata } from "@/lib/admin/metadata";
-import { getAdminAccess } from "@/lib/admin/require-admin";
 import { getAdminDeliveryJobs } from "@/lib/admin/repositories/delivery";
 
 export const metadata = createAdminMetadata("Delivery");
@@ -19,9 +17,6 @@ function formatDate(value: string | null) {
 }
 
 export default async function AdminDeliveryPage() {
-  const access = await getAdminAccess("delivery");
-  if (access.status === "unauthenticated") return <AdminForbidden type="login" />;
-  if (access.status === "forbidden") return <AdminForbidden type="forbidden" />;
 
   const result = await getAdminDeliveryJobs();
 
@@ -43,9 +38,9 @@ export default async function AdminDeliveryPage() {
             key: "id",
             header: "ID",
             render: (row) => (
-              <Link className="font-bold text-orange-300 hover:text-orange-200" href={`/admin/delivery/${row.id}`}>
+              <AdminLink className="font-bold text-orange-300 hover:text-orange-200" href={`/admin/delivery/${row.id}`}>
                 {shortId(row.id)}
-              </Link>
+              </AdminLink>
             )
           },
           { key: "status", header: "Status", render: (row) => row.status },

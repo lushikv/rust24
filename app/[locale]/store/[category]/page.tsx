@@ -9,6 +9,7 @@ import {
   getProductCategoryBySlug,
   getProductsByCategorySlug
 } from "@/lib/repositories/products";
+import { getCurrentUser } from "@/lib/auth/current-user";
 import { createDynamicPageMetadata, getCanonicalUrl } from "@/lib/seo";
 import { createBreadcrumbJsonLd } from "@/lib/structured-data";
 import { getLocalizedValue } from "@/lib/localized";
@@ -61,9 +62,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function StoreCategoryPage({ params }: PageProps) {
   const { locale, category: categorySlug } = await params;
-  const [category, products] = await Promise.all([
+  const [category, products, currentUser] = await Promise.all([
     getProductCategoryBySlug(categorySlug, locale),
-    getProductsByCategorySlug(categorySlug, locale)
+    getProductsByCategorySlug(categorySlug, locale),
+    getCurrentUser()
   ]);
 
   if (!category) {
@@ -101,7 +103,11 @@ export default async function StoreCategoryPage({ params }: PageProps) {
         description={getLocalizedValue(category.description, locale)}
         accent="STORE CATEGORY"
       />
-      <ProductGrid products={products} locale={locale} />
+      <ProductGrid
+        isAuthenticated={Boolean(currentUser)}
+        products={products}
+        locale={locale}
+      />
       <JsonLd data={createBreadcrumbJsonLd(breadcrumbs)} />
     </div>
   );

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { AdminLink } from "@/components/admin/AdminLink";
 
 export function AdminForbidden({ type }: { type: "login" | "forbidden" }) {
   const isLogin = type === "login";
@@ -17,12 +17,12 @@ export function AdminForbidden({ type }: { type: "login" | "forbidden" }) {
             ? "Admin pages require an authenticated Steam session with an admin role."
             : "Your account does not have permission to access this admin area."}
         </p>
-        <Link
+        <AdminLink
           className="mt-6 inline-flex rounded-md bg-orange-500 px-4 py-3 text-sm font-black text-black transition hover:bg-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-300"
           href={isLogin ? "/api/auth/steam?locale=ru&returnTo=/admin" : "/ru"}
         >
           {isLogin ? "Login with Steam" : "Back to site"}
-        </Link>
+        </AdminLink>
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import { AdminActionTokenInput } from "@/components/admin/AdminActionTokenInput";
 import type { ProductCategory } from "@prisma/client";
 import { AdminCheckbox, AdminField, AdminTextarea } from "@/components/admin/AdminField";
 import { AdminSubmitButton } from "@/components/admin/AdminSubmitButton";
@@ -8,6 +9,7 @@ export function ProductCategoryForm({ category }: { category?: ProductCategory }
 
   return (
     <form action={action} className="grid gap-4 md:grid-cols-2">
+      <AdminActionTokenInput />
       <AdminField label="Slug" name="slug" defaultValue={category?.slug} required />
       <AdminField label="Sort order" name="sortOrder" type="number" defaultValue={category?.sortOrder ?? 0} />
       <AdminField label="Title RU" name="titleRu" defaultValue={category?.titleRu} required />

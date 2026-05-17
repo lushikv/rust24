@@ -51,7 +51,7 @@ function parseArticle(formData: FormData) {
 }
 
 export async function createFAQCategoryAction(formData: FormData) {
-  const user = await requireAdminWrite("faq");
+  const user = await requireAdminWrite("faq", formData);
   const data = parseCategory(formData);
   const row = await prisma.fAQCategory.create({ data });
   await auditAdminWrite({ userId: user.id, action: AuditAction.CREATE, entityType: "FAQCategory", entityId: row.id, message: "Created FAQ category.", metadata: { slug: row.slug } });
@@ -60,7 +60,7 @@ export async function createFAQCategoryAction(formData: FormData) {
 }
 
 export async function updateFAQCategoryAction(categoryId: string, formData: FormData) {
-  const user = await requireAdminWrite("faq");
+  const user = await requireAdminWrite("faq", formData);
   const data = parseCategory(formData);
   const row = await prisma.fAQCategory.update({ where: { id: categoryId }, data });
   await auditAdminWrite({ userId: user.id, action: AuditAction.UPDATE, entityType: "FAQCategory", entityId: row.id, message: "Updated FAQ category.", metadata: { slug: row.slug } });
@@ -69,7 +69,7 @@ export async function updateFAQCategoryAction(categoryId: string, formData: Form
 }
 
 export async function toggleFAQCategoryActiveAction(formData: FormData) {
-  const user = await requireAdminWrite("faq");
+  const user = await requireAdminWrite("faq", formData);
   const id = requiredString(formData.get("id"));
   const current = await prisma.fAQCategory.findUniqueOrThrow({ where: { id } });
   const row = await prisma.fAQCategory.update({ where: { id }, data: { isActive: !current.isActive } });
@@ -78,7 +78,7 @@ export async function toggleFAQCategoryActiveAction(formData: FormData) {
 }
 
 export async function createFAQArticleAction(formData: FormData) {
-  const user = await requireAdminWrite("faq");
+  const user = await requireAdminWrite("faq", formData);
   const data = parseArticle(formData);
   const row = await prisma.fAQArticle.create({ data });
   await auditAdminWrite({ userId: user.id, action: AuditAction.CREATE, entityType: "FAQArticle", entityId: row.id, message: "Created FAQ article.", metadata: { slug: row.slug } });
@@ -87,7 +87,7 @@ export async function createFAQArticleAction(formData: FormData) {
 }
 
 export async function updateFAQArticleAction(articleId: string, formData: FormData) {
-  const user = await requireAdminWrite("faq");
+  const user = await requireAdminWrite("faq", formData);
   const data = parseArticle(formData);
   const row = await prisma.fAQArticle.update({ where: { id: articleId }, data });
   await auditAdminWrite({ userId: user.id, action: AuditAction.UPDATE, entityType: "FAQArticle", entityId: row.id, message: "Updated FAQ article.", metadata: { slug: row.slug } });
@@ -96,7 +96,7 @@ export async function updateFAQArticleAction(articleId: string, formData: FormDa
 }
 
 export async function toggleFAQArticlePublishedAction(formData: FormData) {
-  const user = await requireAdminWrite("faq");
+  const user = await requireAdminWrite("faq", formData);
   const id = requiredString(formData.get("id"));
   const current = await prisma.fAQArticle.findUniqueOrThrow({ where: { id } });
   const row = await prisma.fAQArticle.update({ where: { id }, data: { isPublished: !current.isPublished } });

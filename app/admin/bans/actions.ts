@@ -34,7 +34,7 @@ function parseBan(formData: FormData) {
 }
 
 export async function createBanAction(formData: FormData) {
-  const user = await requireAdminWrite("bans");
+  const user = await requireAdminWrite("bans", formData);
   const data = parseBan(formData);
   const row = await prisma.banRecord.create({ data });
   await auditAdminWrite({ userId: user.id, action: AuditAction.CREATE, entityType: "BanRecord", entityId: row.id, message: "Created ban record.", metadata: { playerName: row.playerName } });
@@ -43,7 +43,7 @@ export async function createBanAction(formData: FormData) {
 }
 
 export async function updateBanAction(banId: string, formData: FormData) {
-  const user = await requireAdminWrite("bans");
+  const user = await requireAdminWrite("bans", formData);
   const data = parseBan(formData);
   const row = await prisma.banRecord.update({ where: { id: banId }, data });
   await auditAdminWrite({ userId: user.id, action: AuditAction.UPDATE, entityType: "BanRecord", entityId: row.id, message: "Updated ban record.", metadata: { status: row.status } });
@@ -52,7 +52,7 @@ export async function updateBanAction(banId: string, formData: FormData) {
 }
 
 export async function changeBanStatusAction(formData: FormData) {
-  const user = await requireAdminWrite("bans");
+  const user = await requireAdminWrite("bans", formData);
   const id = requiredString(formData.get("id"));
   const status = z.nativeEnum(BanStatus).parse(requiredString(formData.get("status")));
   const row = await prisma.banRecord.update({ where: { id }, data: { status } });

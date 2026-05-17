@@ -41,7 +41,7 @@ async function deactivateOtherSeasons(active: boolean, currentId?: string) {
 }
 
 export async function createMoneyRaceSeasonAction(formData: FormData) {
-  const user = await requireAdminWrite("moneyRace");
+  const user = await requireAdminWrite("moneyRace", formData);
   const data = parseSeason(formData);
   await deactivateOtherSeasons(data.isActive);
   const row = await prisma.moneyRaceSeason.create({ data });
@@ -51,7 +51,7 @@ export async function createMoneyRaceSeasonAction(formData: FormData) {
 }
 
 export async function updateMoneyRaceSeasonAction(seasonId: string, formData: FormData) {
-  const user = await requireAdminWrite("moneyRace");
+  const user = await requireAdminWrite("moneyRace", formData);
   const data = parseSeason(formData);
   await deactivateOtherSeasons(data.isActive, seasonId);
   const row = await prisma.moneyRaceSeason.update({ where: { id: seasonId }, data });
@@ -61,7 +61,7 @@ export async function updateMoneyRaceSeasonAction(seasonId: string, formData: Fo
 }
 
 export async function toggleMoneyRaceSeasonActiveAction(formData: FormData) {
-  const user = await requireAdminWrite("moneyRace");
+  const user = await requireAdminWrite("moneyRace", formData);
   const id = requiredString(formData.get("id"));
   const current = await prisma.moneyRaceSeason.findUniqueOrThrow({ where: { id } });
   const next = !current.isActive;

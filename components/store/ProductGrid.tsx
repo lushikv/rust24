@@ -3,10 +3,12 @@ import { ProductCard } from "@/components/store/ProductCard";
 
 export function ProductGrid({
   products,
-  locale
+  locale,
+  isAuthenticated = false
 }: {
   products: StoreProduct[];
   locale: Locale;
+  isAuthenticated?: boolean;
 }) {
   if (products.length === 0) {
     return (
@@ -21,7 +23,12 @@ export function ProductGrid({
   return (
     <div className="grid gap-4 lg:grid-cols-3">
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} locale={locale} />
+        <ProductCard
+          key={product.id}
+          isAuthenticated={isAuthenticated}
+          product={product}
+          locale={locale}
+        />
       ))}
     </div>
   );

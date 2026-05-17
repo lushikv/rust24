@@ -1,3 +1,4 @@
+import { AdminActionTokenInput } from "@/components/admin/AdminActionTokenInput";
 import type { ReactNode } from "react";
 
 export function AdminActionButton({
@@ -11,6 +12,7 @@ export function AdminActionButton({
 }) {
   return (
     <form action={action}>
+      <AdminActionTokenInput />
       {fields
         ? Object.entries(fields).map(([name, value]) => (
             <input key={name} name={name} type="hidden" value={value} />

@@ -1,8 +1,6 @@
 import { AdminDataTable } from "@/components/admin/AdminDataTable";
-import { AdminForbidden } from "@/components/admin/AdminForbidden";
 import { AdminStatusNotice } from "@/components/admin/AdminStatusNotice";
 import { createAdminMetadata } from "@/lib/admin/metadata";
-import { getAdminAccess } from "@/lib/admin/require-admin";
 import { getAdminAuditLogs } from "@/lib/admin/repositories/audit-log";
 
 export const metadata = createAdminMetadata("Audit Log");
@@ -17,9 +15,6 @@ function formatDate(value: string) {
 }
 
 export default async function AdminAuditLogPage() {
-  const access = await getAdminAccess("auditLog");
-  if (access.status === "unauthenticated") return <AdminForbidden type="login" />;
-  if (access.status === "forbidden") return <AdminForbidden type="forbidden" />;
 
   const result = await getAdminAuditLogs();
 

@@ -1,18 +1,15 @@
+import { AdminLink } from "@/components/admin/AdminLink";
 import { AdminDataTable } from "@/components/admin/AdminDataTable";
-import { AdminForbidden } from "@/components/admin/AdminForbidden";
 import { AdminStatusNotice } from "@/components/admin/AdminStatusNotice";
 import { createAdminMetadata } from "@/lib/admin/metadata";
-import { getAdminAccess } from "@/lib/admin/require-admin";
 import { getAdminSupportChannels } from "@/lib/admin/repositories/support";
 import { toggleSupportChannelActiveAction } from "@/app/admin/support/actions";
 
+import { AdminActionButton } from "@/components/admin/AdminActionButton";
 export const metadata = createAdminMetadata("Support");
 export const dynamic = "force-dynamic";
 
 export default async function AdminSupportPage() {
-  const access = await getAdminAccess("support");
-  if (access.status === "unauthenticated") return <AdminForbidden type="login" />;
-  if (access.status === "forbidden") return <AdminForbidden type="forbidden" />;
 
   const result = await getAdminSupportChannels();
 
@@ -20,7 +17,7 @@ export default async function AdminSupportPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <PageIntro title="Support" description="Manage public support channels." />
-        <Link className="rounded-md bg-orange-500 px-4 py-3 text-sm font-black text-black" href="/admin/support/new">New</Link>
+        <AdminLink className="rounded-md bg-orange-500 px-4 py-3 text-sm font-black text-black" href="/admin/support/new">New</AdminLink>
       </div>
       {!result.available ? <AdminStatusNotice message="Database is unavailable. Support rows cannot be loaded." /> : null}
       <AdminDataTable
@@ -29,7 +26,7 @@ export default async function AdminSupportPage() {
           { key: "slug", header: "Slug", render: (row) => row.slug },
           { key: "url", header: "URL", render: (row) => row.url },
           { key: "active", header: "Active", render: (row) => String(row.isActive) },
-          { key: "edit", header: "Edit", render: (row) => <Link className="font-bold text-orange-300" href={`/admin/support/${row.id}/edit`}>Edit</Link> },
+          { key: "edit", header: "Edit", render: (row) => <AdminLink className="font-bold text-orange-300" href={`/admin/support/${row.id}/edit`}>Edit</AdminLink> },
           { key: "toggle", header: "Toggle", render: (row) => <AdminActionButton action={toggleSupportChannelActiveAction} fields={{ id: row.id }}>{row.isActive ? "Deactivate" : "Activate"}</AdminActionButton> }
         ]}
         rows={result.data}
@@ -46,5 +43,3 @@ function PageIntro({ title, description }: { title: string; description: string 
     </div>
   );
 }
-import Link from "next/link";
-import { AdminActionButton } from "@/components/admin/AdminActionButton";
